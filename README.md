@@ -2,7 +2,14 @@ Ladda ned repo:  git@github.com:Max-comerit/Blazor-CoHosted-Demo.git
 
 Uppdatera appsettings.json i src/Companies.API till er localdb sträng  
 
-Bygg solution  
+Bygg solution    
+
+Högerklicka projektet Compani.Api och, välj Manage user-secrets och sett dem till:   
+{
+  "password": "password",
+  "secretkey" :"ThisMustBeReallylongXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXZZZZ"
+}
+
 
 Gå till packet-manager, set default project till src\Companies.API  
 
