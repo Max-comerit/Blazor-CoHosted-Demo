@@ -1,0 +1,96 @@
+﻿@page "/counter"
+@inject TokenService TokenService
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Token Demo</h1>
+
+<h3>Access Token: @accessToken</h3>
+<h3>Refresh Token: @refreshToken</h3>
+
+<button class="btn btn-primary" @onclick="Login">Login</button>
+<button class="btn btn-secondary" @onclick="CheckTokens">Check Saved Tokens</button>
+<button class="btn btn-secondary" @onclick="Logout">Logout</button>
+
+<h2>Saved Tokens</h2>
+<p>Saved Access Token: @savedAccessTokenMessage</p>
+<p>Saved Refresh Token: @savedRefreshTokenMessage</p>
+
+<h2>StatusCode: @statusCode</h2>
+
+@if (companyDto is not null)
+{
+    <h2>Company</h2>
+    <p>Id: @companyDto.Id</p>
+    <p>Name: @companyDto.Name</p>
+    <p>Address: @companyDto.Address</p>
+}
+
+<button class="btn btn-secondary" @onclick="GetCompany">Get Protected Endpoint</button>
+
+@code {
+    private string accessToken = string.Empty;
+    private string refreshToken = string.Empty;
+    private string savedAccessTokenMessage = string.Empty;
+    private string savedRefreshTokenMessage = string.Empty;
+    private string statusCode = "No request done";
+    private CompanyDto? companyDto;
+
+    private async Task Login()
+    {
+        var success = await TokenService.LoginAsync("Wilma68", "password"); // Uppdatera användarnamn och lösenord om det behövs.
+        if (success)
+        {
+            await CheckTokens();
+            accessToken = savedAccessTokenMessage;
+            refreshToken = savedRefreshTokenMessage;
+        }
+        else
+        {
+            accessToken = "Login failed.";
+            refreshToken = "Please check your credentials.";
+        }
+    }
+
+    private async Task CheckTokens()
+    {
+        var tokens = await TokenService.CheckTokensAsync();
+        savedAccessTokenMessage = tokens.AccessToken;
+        savedRefreshTokenMessage = tokens.RefreshToken;
+
+        StateHasChanged(); // Uppdatera UI
+    }
+
+    private async Task Logout()
+    {
+        await TokenService.LogoutAsync();
+        await CheckTokens();
+    }
+
+    private async Task GetCompany()
+    {
+        var client = HttpClientFactory.CreateClient("SecureApi");
+        var token = await TokenService.GetAccessTokenAsync();
+
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync("https://localhost:7044/api/companies/1");
+            statusCode = response.StatusCode.ToString();
+
+            if (response.IsSuccessStatusCode)
+            {
+                companyDto = await response.Content.ReadFromJsonAsync<CompanyDto>();
+            }
+            else
+            {
+                companyDto = null;
+            }
+        }
+    }
+
+    private record CompanyDto(int Id, string Name, string Address);
+}
