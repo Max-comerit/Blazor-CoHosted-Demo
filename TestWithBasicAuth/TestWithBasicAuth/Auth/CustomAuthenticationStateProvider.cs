@@ -28,9 +28,20 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
         try
         {
-            var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+            var claim = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, "Mockuser"),
+                new Claim("CanEdit", "true"),
+                new Claim ("CanView", "true")
+            };
+
+            var identity = new ClaimsIdentity(claim, "mock");
             var user = new ClaimsPrincipal(identity);
-            return new AuthenticationState(user);
+
+            return await Task.FromResult(new AuthenticationState(user)).ConfigureAwait(false);
+            //var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+            //var user = new ClaimsPrincipal(identity);
+            //return new AuthenticationState(user);
 
         }
         catch (Exception ex)

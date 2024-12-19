@@ -1,0 +1,41 @@
+﻿@page "/auth-demo"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Authorization & Authentication Demo</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Welcome, authenticated user! You can see this because you are logged in.</p>
+        <p>Check out the admin section below if you have the correct role:</p>
+        @if (isAdmin)
+        {
+            <div class="admin-section">
+                <h4>Admin Section</h4>
+                <p>You have access to admin-only content!</p>
+            </div>
+        }
+        else
+        {
+            <p>You do not have access to admin content.</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>Please log in to see the content on this page.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool isAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            isAdmin = user.IsInRole("Admin"); // Kontrollera om användaren har rollen "Admin".
+        }
+    }
+}

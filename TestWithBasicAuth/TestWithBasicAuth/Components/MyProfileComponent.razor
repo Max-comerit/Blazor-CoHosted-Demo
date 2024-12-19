@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>MyProfileComponent</h3>
+
+@if (IsAuthenticated)
+{
+    <p>Welcome, @UserName!</p>
+}
+else
+{
+    <p>User is not authenticated.</p>
+}
+
+@code {
+    [Parameter]
+    public string UserName { get; set; } // Ta emot användarnamn som parameter
+
+    private bool IsAuthenticated { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        // Kontrollera om användaren är autentiserad och matchar UserName
+        IsAuthenticated = user.Identity is not null && user.Identity.IsAuthenticated &&
+                          string.Equals(user.Identity.Name, UserName, StringComparison.OrdinalIgnoreCase);
+    }
+}

@@ -1,0 +1,187 @@
+﻿@page "/admin"
+@using Microsoft.AspNetCore.Authorization
+@inject EmployeeService EmployeeService
+@inject CompanyService CompanyService
+@inject TokenService TokenService
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+
+
+<h3>AdminHandlerPage</h3>
+
+
+<button class="btn btn-primary" @onclick="CheckRemainingTimeOnToken">Check time on token</button>
+@if (timeRemaning is null)
+{
+    <p>Ingen data kring varaktighet på token...</p>
+}
+else
+{
+    <p>@timeRemaning sekunder kvar till token går ut</p>
+}
+
+<AuthorizeView Roles="Employee">
+    <Authorized>
+        <button class="btn btn-primary" @onclick="LoadEmployees">Load Employees</button>
+
+        @if (employees is null)
+        {
+            <p>Loading or no data loaded yet...</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Position</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var employee in employees)
+                    {
+                        <tr>
+                            <td>@employee.Id</td>
+                            <td>@employee.Name</td>
+                            <td>@employee.Age</td>
+                            <td>@employee.Position</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to see the personnel list</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+<button class="btn btn-primary" @onclick="LoadCompanies">Load Companies</button>
+
+@if (companies is null)
+{
+    <p>Loading or no data loaded yet...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Employees</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var company in companies)
+            {
+                <tr>
+                    <td>@company.Id</td>
+                    <td>@company.Name</td>
+                    <td>@company.Address</td>
+                    <td>
+                        @if (company.Employees != null && company.Employees.Any())
+                        {
+                            <ul>
+                                @foreach (var employee in company.Employees)
+                                {
+                                    <li>@employee.Name - @employee.Position</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span>No Employees</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<button class="btn btn-primary" @onclick="LoadSingleCompany">Load One Company</button>
+
+@if (company is null)
+{
+    <p>Loading or no data loaded yet...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Employees</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td>@company.Id</td>
+                <td>@company.Name</td>
+                <td>@company.Address</td>
+                <td>
+                    @if (company.Employees != null && company.Employees.Any())
+                    {
+                        <ul>
+                            @foreach (var employee in company.Employees)
+                            {
+                                <li>@employee.Name - @employee.Position</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>No Employees</span>
+                    }
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<EmployeeDto>? employees;
+    private List<CompanyDto> companies;
+    private CompanyDto company;
+    private Double? timeRemaning { get; set; }
+
+ 
+    private async Task CheckRemainingTimeOnToken()
+    {
+
+        var remainingSeconds = await TokenService.GetAccessTokenRemainingSecondsAsync();
+        if (remainingSeconds.HasValue)
+        {
+            Console.WriteLine($"Token löper ut om {remainingSeconds.Value} sekunder.");
+            timeRemaning = remainingSeconds;
+        }
+        else
+        {
+            Console.WriteLine("Ogiltig token eller ingen exp-claim.");
+        }
+    }
+
+    private async Task LoadEmployees()
+    {
+        employees = await EmployeeService.GetEmployeesAsync(1);
+    }
+    private async Task LoadCompanies()
+    {
+        companies = await CompanyService.GetCompaniesAsync();
+    }
+    private async Task LoadSingleCompany()
+    {
+        company = await CompanyService.GetCompanyAsync();
+    }
+}
