@@ -19,7 +19,7 @@ Välj användarnamn till en godtycklig användare, har format namn+siffra, t.ex.
 
 Gå till project TestWithBasicAuth i lösningen  
 
-I @code, Login funktion finns en hårdkodad användare  
+I @code, Login-funktion finns en hårdkodad användare  
 
 Sätt användarnamnet ni hittade i er DB, med lösenord password  
 
