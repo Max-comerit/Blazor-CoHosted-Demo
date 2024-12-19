@@ -10,6 +10,14 @@
     <main>
         <div class="top-row px-4">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink href="/my-page" class="nav-link">My Page</NavLink>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink href="/login" class="nav-link" target="_self">Login</NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">

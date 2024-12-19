@@ -72,7 +72,7 @@ public class AuthService : IAuthService
                                     issuer: jwtConfig.Issuer,
                                     audience: jwtConfig.Audience,
                                     claims: claims,
-                                    expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtConfig.Expires)),  
+                                    expires: DateTime.Now.AddMinutes(1),  
                                     signingCredentials: signing);
 
         return tokenOptions;

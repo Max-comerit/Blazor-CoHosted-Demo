@@ -1,0 +1,46 @@
+﻿@inject TokenService TokenService
+@inject NavigationManager NavigationManager
+
+<h3>Login page</h3>
+
+<EditForm Model="loginModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div>
+        <label for="username">Användarnamn</label>
+        <InputText id="username" @bind-Value="loginModel.Username" class="form-control" />
+        <ValidationMessage For="@(() => loginModel.Username)" />
+    </div>
+    <div>
+        <label for="password">Lösenord</label>
+        <InputText id="password" @bind-Value="loginModel.Password" class="form-control" type="password" />
+        <ValidationMessage For="@(() => loginModel.Password)" />
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 15px;">Logga in</button>
+    </div>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@code {
+    private LoginDto loginModel = new LoginDto();
+    private string errorMessage;
+
+    private async Task HandleValidSubmit()
+    {
+        var success = await TokenService.LoginAsync(loginModel.Username, loginModel.Password);
+
+        if (success)
+        {
+            NavigationManager.NavigateTo("/admin"); // Omdirigera till /admin
+        }
+        else
+        {
+            errorMessage = "Inloggning misslyckades. Kontrollera dina uppgifter.";
+        }
+    }
+}

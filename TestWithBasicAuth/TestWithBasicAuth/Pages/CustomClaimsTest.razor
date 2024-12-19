@@ -1,0 +1,38 @@
+﻿@page "/claims"
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>CustomClaimsTest</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Välkommen, Mockuser!</p>
+
+        @if (canEdit)
+        {
+            <button class="btn">Edit</button>
+        }
+        @if (canView)
+        {
+            <button class="btn">View report</button>
+        }
+
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not authorized to view or edit project-data</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool canEdit;
+    private bool canView;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        canEdit = user.HasClaim("CanEdit", "true");
+        canView = user.HasClaim("CanView", "false");
+    }
+
+}
